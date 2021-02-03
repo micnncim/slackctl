@@ -1,10 +1,11 @@
 package main
 
 import (
+	"context"
 	"log"
+	"time"
 
 	"github.com/micnncim/slackctl/pkg/cmd"
-	"github.com/micnncim/slackctl/pkg/cmd/post"
 )
 
 func main() {
@@ -14,16 +15,16 @@ func main() {
 }
 
 func run() error {
-	c := cmd.NewCommand()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
 
-	postCmd, err := post.NewCommand()
+	c, err := cmd.NewCommand(ctx)
 	if err != nil {
 		return err
 	}
+	if err := c.Execute(); err != nil {
+		return err
+	}
 
-	c.AddCommand(
-		postCmd,
-	)
-
-	return c.Execute()
+	return nil
 }
