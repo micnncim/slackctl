@@ -3,7 +3,6 @@ package post
 import (
 	"context"
 	"errors"
-	"os"
 
 	"github.com/spf13/cobra"
 
@@ -11,20 +10,16 @@ import (
 	"github.com/micnncim/slackctl/pkg/slack"
 )
 
-const (
-	envSlackTokenKey = "SLACK_TOKEN"
-)
-
 type runner struct {
-	slackClient *slack.Client
+	client *slack.Client
 
 	logger *logging.Logger
 }
 
-func NewCommand() (*cobra.Command, error) {
-	r, err := newRunner()
-	if err != nil {
-		return nil, err
+func NewCommand(ctx context.Context) *cobra.Command {
+	r := &runner{
+		client: slack.ClientFromContext(ctx),
+		logger: logging.LoggerFromContext(ctx),
 	}
 
 	cmd := &cobra.Command{
@@ -35,21 +30,7 @@ func NewCommand() (*cobra.Command, error) {
 		},
 	}
 
-	return cmd, nil
-}
-
-func newRunner() (*runner, error) {
-	token := os.Getenv(envSlackTokenKey)
-
-	client, err := slack.NewClient(token)
-	if err != nil {
-		return nil, err
-	}
-
-	return &runner{
-		slackClient: client,
-		logger:      logging.NewLogger(os.Stdout),
-	}, nil
+	return cmd
 }
 
 func (r *runner) run(ctx context.Context, args []string) error {
@@ -60,7 +41,7 @@ func (r *runner) run(ctx context.Context, args []string) error {
 	channelID := args[0]
 	message := args[1]
 
-	if err := r.slackClient.PostMessage(ctx, channelID, message); err != nil {
+	if err := r.client.PostMessage(ctx, channelID, message); err != nil {
 		r.logger.Errorf("Failed to post a message: %s\n", err)
 		return nil
 	}
