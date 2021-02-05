@@ -32,14 +32,14 @@ func NewCommand(ctx context.Context) (*cobra.Command, error) {
 	}()
 
 	logger := logging.NewLogger(os.Stderr)
-	ctx = logging.WithLogger(ctx, logger)
+	ctx = logging.NewContext(ctx, logger)
 
 	token := os.Getenv(envSlackTokenKey)
 	client, err := slack.NewClient(token)
 	if err != nil {
 		return nil, err
 	}
-	ctx = slack.WithClient(ctx, client)
+	ctx = slack.NewContext(ctx, client)
 
 	cmd.AddCommand(post.NewCommand(ctx))
 

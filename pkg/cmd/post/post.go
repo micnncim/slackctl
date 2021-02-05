@@ -18,8 +18,8 @@ type runner struct {
 
 func NewCommand(ctx context.Context) *cobra.Command {
 	r := &runner{
-		client: slack.ClientFromContext(ctx),
-		logger: logging.LoggerFromContext(ctx),
+		client: slack.FromContext(ctx),
+		logger: logging.FromContext(ctx),
 	}
 
 	cmd := &cobra.Command{
