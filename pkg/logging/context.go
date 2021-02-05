@@ -2,19 +2,18 @@ package logging
 
 import (
 	"context"
-	"os"
 )
 
 type ctxKey struct{}
 
-func WithLogger(ctx context.Context, logger *Logger) context.Context {
-	return context.WithValue(ctx, ctxKey{}, logger)
+func NewContext(ctx context.Context, l *Logger) context.Context {
+	return context.WithValue(ctx, ctxKey{}, l)
 }
 
-func LoggerFromContext(ctx context.Context) *Logger {
-	logger, ok := ctx.Value(ctxKey{}).(*Logger)
-	if !ok {
-		return NewLogger(os.Stderr)
+func FromContext(ctx context.Context) *Logger {
+	if l, ok := ctx.Value(ctxKey{}).(*Logger); ok {
+		return l
 	}
-	return logger
+
+	return nil
 }

@@ -6,14 +6,14 @@ import (
 
 type ctxKey struct{}
 
-func WithClient(ctx context.Context, client *Client) context.Context {
-	return context.WithValue(ctx, ctxKey{}, client)
+func NewContext(ctx context.Context, c *Client) context.Context {
+	return context.WithValue(ctx, ctxKey{}, c)
 }
 
-func ClientFromContext(ctx context.Context) *Client {
-	client, ok := ctx.Value(ctxKey{}).(*Client)
-	if !ok {
-		return &Client{}
+func FromContext(ctx context.Context) *Client {
+	if c, ok := ctx.Value(ctxKey{}).(*Client); ok {
+		return c
 	}
-	return client
+
+	return nil
 }
